@@ -1,6 +1,11 @@
 /* ============================================================
-   RESELLER B2SS2B BREAKUP — CORE APP LOGIC (CLEANED + FIXED)
+   RESELLER B2SS2B BREAKUP — DEMO VERSION (ISOLATED STORAGE)
    ============================================================ */
+
+/* -----------------------------
+   DEMO STORAGE PREFIX
+----------------------------- */
+const DEMO_PREFIX = "demo_";
 
 /* -----------------------------
    SECTION NAVIGATION
@@ -23,14 +28,14 @@ navButtons.forEach(btn => {
 });
 
 /* -----------------------------
-   LOCAL STORAGE WRAPPER
+   LOCAL STORAGE WRAPPER (DEMO)
 ----------------------------- */
 const Storage = {
     save(key, data) {
-        localStorage.setItem(key, JSON.stringify(data));
+        localStorage.setItem(DEMO_PREFIX + key, JSON.stringify(data));
     },
     load(key, fallback = []) {
-        const raw = localStorage.getItem(key);
+        const raw = localStorage.getItem(DEMO_PREFIX + key);
         if (!raw) return fallback;
         try {
             return JSON.parse(raw);
@@ -39,7 +44,7 @@ const Storage = {
         }
     },
     clear(key) {
-        localStorage.removeItem(key);
+        localStorage.removeItem(DEMO_PREFIX + key);
     }
 };
 
@@ -69,6 +74,7 @@ function normalizeData() {
     sales = sales.map(s => {
         if (!s.id) s.id = crypto.randomUUID();
         if (typeof s.purchaseId === "undefined") s.purchaseId = null;
+        if (typeof s.lotId === "undefined") s.lotId = null;
         if (typeof s.autoCogs === "undefined") s.autoCogs = false;
         return s;
     });
@@ -231,7 +237,6 @@ function linkPurchaseToSale(saleIndex, purchaseId) {
     renderLotTable();
     updateSummary();
 }
-
 /* -----------------------------
    SALES — LINK LOT TO SALE
 ----------------------------- */
@@ -314,6 +319,7 @@ function unlinkPurchaseFromSale(saleIndex) {
     renderLotTable();
     updateSummary();
 }
+
 /* -----------------------------
    SALES — DELETE
 ----------------------------- */
@@ -550,7 +556,6 @@ function toNumber(str) {
     const n = Number(cleaned);
     return isNaN(n) ? 0 : n;
 }
-
 /* -----------------------------
    SALARY — ADD ENTRY
 ----------------------------- */
@@ -613,7 +618,7 @@ function renderSalaryTable() {
 }
 
 /* -----------------------------
-   SALARY GOAL (HTML MATCHED)
+   SALARY GOAL (DEMO)
 ----------------------------- */
 function updateSalaryGoal() {
     const goal = Number(document.getElementById("salary-goal-input").value) || 0;
@@ -628,20 +633,18 @@ function loadSalaryGoal() {
 }
 
 /* -----------------------------
-   SALARY TRACKER (NEW)
+   SALARY TRACKER (DEMO)
 ----------------------------- */
 function updateSalaryTracker() {
     const paid = salaryEntries.reduce((s, e) => s + e.amount, 0);
     const remaining = Math.max(0, salaryGoal - paid);
 
-    // Update Paid/Remaining text (HTML has no IDs)
     const paidText = document.querySelector("#salary .card:nth-of-type(2) p:nth-of-type(1)");
     const remainingText = document.querySelector("#salary .card:nth-of-type(2) p:nth-of-type(2)");
 
     if (paidText) paidText.innerHTML = `<strong>Paid:</strong> $${paid.toFixed(2)}`;
     if (remainingText) remainingText.innerHTML = `<strong>Remaining:</strong> $${remaining.toFixed(2)}`;
 
-    // Update progress bar
     const bar = document.querySelector(".progress-fill");
     if (bar) {
         const pct = salaryGoal > 0 ? Math.min(100, (paid / salaryGoal) * 100) : 0;
@@ -650,7 +653,7 @@ function updateSalaryTracker() {
 }
 
 /* -----------------------------
-   PAY FULL SALARY (NEW)
+   PAY FULL SALARY (DEMO)
 ----------------------------- */
 function payFullSalary() {
     if (salaryGoal <= 0) {
@@ -678,6 +681,7 @@ function payFullSalary() {
     updateSummary();
     updateSalaryTracker();
 }
+
 /* -----------------------------
    SIMPLE PURCHASES
 ----------------------------- */
@@ -747,7 +751,7 @@ function deletePurchase(index) {
 }
 
 /* -----------------------------
-   PARENT PURCHASE — FIXED
+   PARENT PURCHASES (DEMO)
 ----------------------------- */
 function addParentPurchase() {
     const sourceName = document.getElementById("pp-source").value.trim();
@@ -801,7 +805,7 @@ function selectParentPurchase(index) {
 }
 
 /* -----------------------------
-   LOTS — ADD LOT (FIXED)
+   LOTS — ADD LOT
 ----------------------------- */
 function addLot() {
     if (activeParentIndex === null) return;
@@ -843,7 +847,7 @@ function addLot() {
 }
 
 /* -----------------------------
-   RECALC PARENT TOTALS — FIXED
+   RECALC PARENT TOTALS
 ----------------------------- */
 function recalcParentTotals(parent) {
     parent.totalHammer = parent.subPurchases.reduce((sum, l) => sum + l.hammerPrice, 0);
@@ -992,7 +996,7 @@ function updateSummary() {
 }
 
 /* -----------------------------
-   FINALIZE MONTH
+   FINALIZE MONTH (DEMO)
 ----------------------------- */
 function finalizeMonth() {
     const monthName = prompt("Enter a name for this month (e.g., June 2026):");
@@ -1065,7 +1069,7 @@ function renderArchive() {
 }
 
 /* -----------------------------
-   INITIAL RENDER
+   INITIAL RENDER (DEMO)
 ----------------------------- */
 normalizeData();
 renderSalesTable();
